@@ -1,0 +1,30 @@
+.connect-button {
+    cursor: pointer;
+    position: relative;
+    display: inline-block;
+    padding: 14px 24px;
+    color: #ffffff;
+    background: #1a88f8;
+    font-size: 16px;
+    font-weight: 500;
+    border: none; /* Remove black border */
+    outline: none; /* Remove focus outline */
+    border-radius: 10rem;
+    box-shadow: 0 4px 24px -6px #1a88f8;
+    transition: 200ms ease;
+  }
+  
+  .connect-button:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 6px 40px -6px #1a88f8;
+  }
+  
+  .connect-button:active {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 32px -6px #1a88f8;
+  }
+  
+  .connect-button:focus {
+    outline: none; /* Remove focus outline */
+  }
+  
