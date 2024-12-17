@@ -1,0 +1,12 @@
+{
+    "name": "Pepe Gift Card",
+    "description": "A special holiday card",
+    "image": "https://gateway.pinata.cloud/ipfs/bafybeih6g2jgbcuduewunlyirc3x2qlnzxt266wfcuu2hdjg2i4qqcrrpi",
+    "attributes": [
+      {
+        "trait_type": "Collection",
+        "value": "Holiday Cards"
+      }
+    ]
+  }
+  

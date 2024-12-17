@@ -1,6 +1,5 @@
 // src/app/components/NFTDisplay/NFTCard.js
 
-
 "use client";
 
 export default function NFTCard({ nft, onPurchaseClick }) {
