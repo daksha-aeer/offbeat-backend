@@ -12,6 +12,7 @@ export default function ClaimPage() {
   const { isConnected, address } = useAccount();
   const [claimStatus, setClaimStatus] = useState("loading");
   const [purchaseData, setPurchaseData] = useState(null);
+  const [showMagicUI, setShowMagicUI] = useState(false);
   const [error, setError] = useState("");
 
   useEffect(() => {
@@ -22,27 +23,33 @@ export default function ClaimPage() {
     try {
       const response = await fetch(`/api/validate-token/${token}`);
       const data = await response.json();
-
+      console.log("Token validation response:", data); // Add this log
+  
       if (!response.ok) {
         setClaimStatus("invalid");
         setError(data.error);
         return;
       }
-
+  
       if (data.isNFTSent) {
         setClaimStatus("claimed");
         return;
       }
-
+  
       setPurchaseData(data);
       setClaimStatus("valid");
     } catch (error) {
+      console.error("Token validation error:", error);
       setClaimStatus("error");
       setError("Failed to validate token");
     }
   };
 
-  const handleClaim = async (walletAddress) => {
+  const handleStartClaim = () => {
+    setShowMagicUI(true);
+  };
+
+  const handleWalletCreated = async (newWalletAddress) => {
     try {
       setClaimStatus("processing");
 
@@ -51,7 +58,7 @@ export default function ClaimPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           token,
-          recipientAddress: walletAddress || address,
+          recipientAddress: newWalletAddress,
         }),
       });
 
@@ -64,10 +71,6 @@ export default function ClaimPage() {
       setClaimStatus("error");
       setError(error.message);
     }
-  };
-
-  const handleWalletCreated = (newWalletAddress) => {
-    handleClaim(newWalletAddress);
   };
 
   const renderContent = () => {
@@ -84,8 +87,34 @@ export default function ClaimPage() {
       case "valid":
         return (
           <div className="space-y-4">
-            <h2 className="text-xl font-bold mb-4">Claim Your NFT</h2>
-            <MagicWalletCreation onWalletCreated={handleWalletCreated} />
+            <h2 className="text-xl font-bold mb-4">Your NFT is Ready!</h2>
+            
+            {/* NFT Display */}
+            {purchaseData && purchaseData.nftData && (
+              <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
+                <img 
+                  src={purchaseData.nftData.image} 
+                  alt={purchaseData.nftData.title}
+                  className="w-full h-auto rounded-lg mb-4"
+                  onError={(e) => console.log("Image failed to load:", e)}
+                  onLoad={() => console.log("Image loaded successfully")}
+                />
+                <h3 className="text-lg font-semibold">{purchaseData.nftData.title}</h3>
+                <p className="text-gray-600">{purchaseData.nftData.description}</p>
+              </div>
+            )}
+            
+            <button
+              onClick={() => {
+                console.log("Claim button clicked");
+                setShowMagicUI(true);
+              }}
+              className="w-full bg-blue-600 text-white py-3 px-6 rounded-lg hover:bg-blue-700 transition-colors"
+            >
+              Claim Your NFT
+            </button>
+      
+            {showMagicUI && <MagicWalletCreation onWalletCreated={handleWalletCreated} />}
           </div>
         );
       

@@ -25,7 +25,7 @@ export default function NFTDisplay() {
     },
     {
       id: 2,
-      title: "Season Greetings",
+      title: "Cheers To The Season",
       description: "Celebrate the holiday season",
       price: "0.15 MATIC",
       image: "/nft-images/CardTwo.png"

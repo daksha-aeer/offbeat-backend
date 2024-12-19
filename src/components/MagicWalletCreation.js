@@ -4,27 +4,30 @@ import { Magic } from 'magic-sdk';
 
 export default function MagicWalletCreation({ onWalletCreated }) {
   useEffect(() => {
-    const magic = new Magic(process.env.NEXT_PUBLIC_MAGIC_PUBLISHABLE_KEY);
-    
-    const showUI = async () => {
+    const createWallet = async () => {
       try {
-        // This will show Magic's UI for wallet creation
-        await magic.wallet.connectWithUI();
+        console.log("Starting wallet creation...");
+        const magic = new Magic(process.env.NEXT_PUBLIC_MAGIC_PUBLISHABLE_KEY);
+        console.log("Magic instance created");
         
-        // Get the wallet info after creation
+        await magic.wallet.connectWithUI();
+        console.log("UI connected");
+        
         const userInfo = await magic.user.getInfo();
+        console.log("Got user info:", userInfo);
+        
         onWalletCreated(userInfo.publicAddress);
       } catch (error) {
         console.error("Error creating wallet:", error);
       }
     };
 
-    showUI();
-  }, [onWalletCreated]);
+    createWallet();
+  }, []);
 
   return (
     <div className="text-center">
-      {/* Magic will render its own UI here */}
+      <p>Creating your wallet...</p>
     </div>
   );
 }

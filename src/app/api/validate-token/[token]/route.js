@@ -1,9 +1,27 @@
 // src/app/api/validate-token/[token]/route.js
 import clientPromise from '@/utils/mongodb';
 
+const NFT_DATA = {
+  1: {
+    title: "Pepe Gift Card",
+    description: "A special holiday card",
+    image: "https://gateway.pinata.cloud/ipfs/bafybeih6g2jgbcuduewunlyirc3x2qlnzxt266wfcuu2hdjg2i4qqcrrpi"
+  },
+  2: {
+    title: "Cheers To The Season",
+    description: "Celebrate the holiday season",
+    image: "https://gateway.pinata.cloud/ipfs/bafybeig2wvvckrlcrc4hcaar2yob3p3e7e6or57o56nzcchsd4pj7m7z3a"
+  },
+  3: {
+    title: "Happy Hodldays",
+    description: "Spread the cheer",
+    image: "https://gateway.pinata.cloud/ipfs/bafybeiaa7kcfh63h2uczsdddabrwtzf67znu5uoebmhdvhlv437lunqk6u"
+  }
+};
+
 export async function GET(req, { params }) {
   try {
-    const { token } = params;
+    const token = await params.token;
 
     if (!token) {
       return new Response(
@@ -16,7 +34,6 @@ export async function GET(req, { params }) {
     const db = client.db("offbeat-test");
     const collection = db.collection("purchases");
 
-    // Find the purchase record by token
     const purchase = await collection.findOne({ uniqueToken: token });
 
     if (!purchase) {
@@ -26,14 +43,14 @@ export async function GET(req, { params }) {
       );
     }
 
-    // Return relevant purchase data
+    // Include the NFT data based on nftId
     return new Response(
       JSON.stringify({
         nftId: purchase.nftId,
         isNFTSent: purchase.isNFTSent,
         senderAddress: purchase.senderAddress,
         createdAt: purchase.createdAt,
-        // Don't send sensitive data like email back to client
+        nftData: NFT_DATA[purchase.nftId]
       }),
       { status: 200 }
     );
@@ -45,4 +62,3 @@ export async function GET(req, { params }) {
     );
   }
 }
-
