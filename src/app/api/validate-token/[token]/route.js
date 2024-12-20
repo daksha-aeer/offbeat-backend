@@ -21,21 +21,20 @@ const NFT_DATA = {
 
 export async function GET(req, { params }) {
   try {
-    if (!params?.token) {
+    const token = params.token;  
+    if (!token) {
       return new Response(
         JSON.stringify({ error: "Token is required" }),
         { status: 400 }
       );
     }
 
-    const token = params.token;
-
     const client = await clientPromise;
     const db = client.db("offbeat-test");
     const collection = db.collection("purchases");
 
     const purchase = await collection.findOne({ uniqueToken: token });
-    console.log('Found purchase:', purchase); // Debug log
+    console.log('Found purchase:', purchase);
 
     if (!purchase) {
       return new Response(
@@ -44,7 +43,6 @@ export async function GET(req, { params }) {
       );
     }
 
-    // Include the NFT data based on nftId
     return new Response(
       JSON.stringify({
         nftId: purchase.nftId,

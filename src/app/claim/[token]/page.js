@@ -24,7 +24,6 @@ export default function ClaimPage() {
     try {
       const response = await fetch(`/api/validate-token/${token}`);
       const data = await response.json();
-      console.log("Token validation response:", data); // Add this log
   
       if (!response.ok) {
         setClaimStatus("invalid");
@@ -46,35 +45,27 @@ export default function ClaimPage() {
     }
   };
 
-  const handleStartClaim = () => {
-    setShowMagicUI(true);
-  };
-
-  const handleWalletCreated = async (newWalletAddress) => {
-    console.log("Wallet creation callback received with address:", newWalletAddress);
-    
-    if (!newWalletAddress) {
-      console.log("No wallet address received, cancelling claim process");
+  const handleWalletCreated = async (walletAddress) => {
+    if (!walletAddress) {
       setShowMagicUI(false);
-      setClaimStatus("valid");  // Reset back to claim button state
+      setClaimStatus("valid");
       return;
     }
-  
+
     try {
-      console.log("Starting claim process with address:", newWalletAddress);
       setClaimStatus("processing");
+      console.log("Processing claim with wallet:", walletAddress);
   
       const response = await fetch("/api/process-claim", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           token,
-          recipientAddress: newWalletAddress,
+          recipientAddress: walletAddress,
         }),
       });
   
       const data = await response.json();
-      console.log("Claim API response:", data);
   
       if (!response.ok) {
         throw new Error(data.error || "Failed to process claim");
@@ -91,6 +82,13 @@ export default function ClaimPage() {
       }, 3000);
     }
   };
+
+  const handleClaimClick = () => {
+    console.log('Claim button clicked');
+    setShowMagicUI(true);
+  };
+
+  
 
   const renderContent = () => {
     switch (claimStatus) {
@@ -124,21 +122,19 @@ export default function ClaimPage() {
             
             {!showMagicUI ? (
               <button
-                onClick={() => setShowMagicUI(true)}
+                onClick={handleClaimClick}
                 className="claim-button"
               >
                 Claim Your NFT
               </button>
             ) : (
-              <div className="mt-4">
-                <MagicWalletCreation 
-                  onWalletCreated={handleWalletCreated} 
-                  onCancel={() => {
-                    setShowMagicUI(false);
-                    setClaimStatus("valid");
-                  }}
-                />
-              </div>
+              <MagicWalletCreation 
+                onWalletCreated={handleWalletCreated}
+                onCancel={() => {
+                  setShowMagicUI(false);
+                  setClaimStatus("valid");
+                }}
+              />
             )}
           </div>
         );
@@ -147,9 +143,11 @@ export default function ClaimPage() {
         return <div className="status-message">Processing your claim...</div>;
       
       case "success":
-        return <div className="status-message success-message">
-          Congratulations! Your NFT has been claimed successfully.
-        </div>;
+        return (
+          <div className="status-message success-message">
+            Congratulations! Your NFT has been claimed successfully.
+          </div>
+        );
       
       case "error":
         return <div className="status-message error-message">Error: {error}</div>;
