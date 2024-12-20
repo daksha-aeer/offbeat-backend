@@ -1,33 +1,115 @@
 // src/components/MagicWalletCreation.js
-import { useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Magic } from 'magic-sdk';
 
 export default function MagicWalletCreation({ onWalletCreated }) {
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [status, setStatus] = useState('');
+  const processingRef = useRef(false);
+  const magicInstance = useRef(null);
+
   useEffect(() => {
-    const createWallet = async () => {
+    let isMounted = true;
+
+    const initMagic = async () => {
+      if (processingRef.current) {
+        console.log('Already processing, skipping...');
+        return;
+      }
+      
       try {
-        console.log("Starting wallet creation...");
-        const magic = new Magic(process.env.NEXT_PUBLIC_MAGIC_PUBLISHABLE_KEY);
-        console.log("Magic instance created");
+        processingRef.current = true;
+        if (isMounted) {
+          setIsProcessing(true);
+          setStatus('Initializing...');
+        }
+        console.log("Initializing Magic...");
+
+        // Initialize Magic
+        if (!magicInstance.current) {
+          magicInstance.current = new Magic(process.env.NEXT_PUBLIC_MAGIC_PUBLISHABLE_KEY);
+          console.log("Magic instance created");
+        }
+
+        // Check for existing session first
+        const isLoggedIn = await magicInstance.current.user.isLoggedIn();
+        console.log('Existing login status:', isLoggedIn);
+
+        if (isLoggedIn) {
+          const userInfo = await magicInstance.current.user.getInfo();
+          console.log("Already logged in, user info:", userInfo);
+          if (isMounted) {
+            onWalletCreated(userInfo.publicAddress);
+          }
+          return;
+        }
+
+        // Start login flow
+        if (isMounted) setStatus('Starting login...');
+        console.log("Starting Magic login flow...");
         
-        await magic.wallet.connectWithUI();
-        console.log("UI connected");
-        
-        const userInfo = await magic.user.getInfo();
-        console.log("Got user info:", userInfo);
-        
-        onWalletCreated(userInfo.publicAddress);
+        const result = await magicInstance.current.auth.loginWithMagicLink({ 
+          email: prompt("Please enter your email for login verification:"),
+          showUI: true
+        });
+
+        console.log('Login result:', result);
+
+        // Verify the login was successful
+        const newLoginStatus = await magicInstance.current.user.isLoggedIn();
+        console.log('New login status:', newLoginStatus);
+
+        if (!newLoginStatus) {
+          throw new Error('Login verification failed');
+        }
+
+        // Get the wallet info
+        if (isMounted) setStatus('Getting wallet info...');
+        const userInfo = await magicInstance.current.user.getInfo();
+        console.log("Login successful, user info:", userInfo);
+
+        if (isMounted && userInfo.publicAddress) {
+          onWalletCreated(userInfo.publicAddress);
+        } else {
+          throw new Error('Failed to get wallet address');
+        }
+
       } catch (error) {
-        console.error("Error creating wallet:", error);
+        console.error("Magic wallet error:", error);
+        
+        if (error.code === "ACTION_CANCELED") {
+          console.log("User cancelled the action");
+          if (isMounted) {
+            onWalletCreated(null);
+          }
+        } else {
+          if (isMounted) {
+            setStatus('Error: ' + error.message);
+            onWalletCreated(null);
+          }
+        }
+      } finally {
+        processingRef.current = false;
+        if (isMounted) setIsProcessing(false);
       }
     };
 
-    createWallet();
-  }, []);
+    initMagic();
+
+    return () => {
+      isMounted = false;
+      processingRef.current = false;
+    };
+  }, [onWalletCreated]);
 
   return (
-    <div className="text-center">
-      <p>Creating your wallet...</p>
+    <div className="text-center p-4">
+      <p className="mb-2">{status || (isProcessing ? "Setting up your wallet..." : "Initializing...")}</p>
+      {isProcessing && (
+        <p className="text-sm text-gray-600">
+          Please check your email for the magic link and complete the login process
+        </p>
+      )}
     </div>
   );
 }

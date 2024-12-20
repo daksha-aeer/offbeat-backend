@@ -1,4 +1,3 @@
-// src/app/api/validate-token/[token]/route.js
 import clientPromise from '@/utils/mongodb';
 
 const NFT_DATA = {
@@ -21,20 +20,21 @@ const NFT_DATA = {
 
 export async function GET(req, { params }) {
   try {
-    const token = await params.token;
-
-    if (!token) {
+    if (!params?.token) {
       return new Response(
         JSON.stringify({ error: "Token is required" }),
         { status: 400 }
       );
     }
 
+    const token = params.token;
+
     const client = await clientPromise;
     const db = client.db("offbeat-test");
     const collection = db.collection("purchases");
 
     const purchase = await collection.findOne({ uniqueToken: token });
+    console.log('Found purchase:', purchase); // Debug log
 
     if (!purchase) {
       return new Response(

@@ -50,9 +50,16 @@ export default function ClaimPage() {
   };
 
   const handleWalletCreated = async (newWalletAddress) => {
+    if (!newWalletAddress) {
+      console.log("Wallet creation cancelled or failed");
+      setShowMagicUI(false);
+      setClaimStatus("valid");  // Reset back to claim button state
+      return;
+    }
+  
     try {
       setClaimStatus("processing");
-
+  
       const response = await fetch("/api/process-claim", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -61,15 +68,23 @@ export default function ClaimPage() {
           recipientAddress: newWalletAddress,
         }),
       });
-
+  
+      const data = await response.json();
+  
       if (!response.ok) {
-        throw new Error("Failed to process claim");
+        throw new Error(data.error || "Failed to process claim");
       }
-
+  
       setClaimStatus("success");
     } catch (error) {
+      console.error("Claim error:", error);
       setClaimStatus("error");
-      setError(error.message);
+      setError(error.message || "Failed to process claim");
+      // Reset UI after error
+      setTimeout(() => {
+        setShowMagicUI(false);
+        setClaimStatus("valid");
+      }, 3000);
     }
   };
 
@@ -104,17 +119,27 @@ export default function ClaimPage() {
               </div>
             )}
             
-            <button
-              onClick={() => {
-                console.log("Claim button clicked");
-                setShowMagicUI(true);
-              }}
-              className="w-full bg-blue-600 text-white py-3 px-6 rounded-lg hover:bg-blue-700 transition-colors"
-            >
-              Claim Your NFT
-            </button>
-      
-            {showMagicUI && <MagicWalletCreation onWalletCreated={handleWalletCreated} />}
+            {!showMagicUI ? (
+              <button
+                onClick={() => {
+                  console.log("Claim button clicked");
+                  setShowMagicUI(true);
+                }}
+                className="w-full bg-blue-600 text-white py-3 px-6 rounded-lg hover:bg-blue-700 transition-colors"
+              >
+                Claim Your NFT
+              </button>
+            ) : (
+              <div className="mt-4">
+                <MagicWalletCreation 
+                  onWalletCreated={handleWalletCreated} 
+                  onCancel={() => {
+                    setShowMagicUI(false);
+                    setClaimStatus("valid");
+                  }}
+                />
+              </div>
+            )}
           </div>
         );
       
