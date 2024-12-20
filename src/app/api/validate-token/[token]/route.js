@@ -1,20 +1,21 @@
+// src/app/api/validate-token/[token]/route.js
 import clientPromise from '@/utils/mongodb';
 
 const NFT_DATA = {
   1: {
     title: "Pepe Gift Card",
     description: "A special holiday card",
-    image: "https://gateway.pinata.cloud/ipfs/bafybeih6g2jgbcuduewunlyirc3x2qlnzxt266wfcuu2hdjg2i4qqcrrpi"
+    image: "https://lavender-rare-trout-340.mypinata.cloud/ipfs/QmXr7Ci1DWeeYzrBRvpBip46FPuePdkJwJeb44ijz6V25B"
   },
   2: {
     title: "Cheers To The Season",
     description: "Celebrate the holiday season",
-    image: "https://gateway.pinata.cloud/ipfs/bafybeig2wvvckrlcrc4hcaar2yob3p3e7e6or57o56nzcchsd4pj7m7z3a"
+    image: "https://lavender-rare-trout-340.mypinata.cloud/ipfs/bafybeig2wvvckrlcrc4hcaar2yob3p3e7e6or57o56nzcchsd4pj7m7z3a"
   },
   3: {
     title: "Happy Hodldays",
     description: "Spread the cheer",
-    image: "https://gateway.pinata.cloud/ipfs/bafybeiaa7kcfh63h2uczsdddabrwtzf67znu5uoebmhdvhlv437lunqk6u"
+    image: "https://lavender-rare-trout-340.mypinata.cloud/ipfs/bafybeiaa7kcfh63h2uczsdddabrwtzf67znu5uoebmhdvhlv437lunqk6u"
   }
 };
 

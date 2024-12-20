@@ -5,6 +5,7 @@ import { useParams } from "next/navigation";
 import { useState, useEffect } from "react";
 import { useAccount } from "wagmi";
 import MagicWalletCreation from '@/components/MagicWalletCreation';
+import './claim.css';
 
 export default function ClaimPage() {
   const params = useParams();
@@ -50,14 +51,17 @@ export default function ClaimPage() {
   };
 
   const handleWalletCreated = async (newWalletAddress) => {
+    console.log("Wallet creation callback received with address:", newWalletAddress);
+    
     if (!newWalletAddress) {
-      console.log("Wallet creation cancelled or failed");
+      console.log("No wallet address received, cancelling claim process");
       setShowMagicUI(false);
       setClaimStatus("valid");  // Reset back to claim button state
       return;
     }
   
     try {
+      console.log("Starting claim process with address:", newWalletAddress);
       setClaimStatus("processing");
   
       const response = await fetch("/api/process-claim", {
@@ -70,6 +74,7 @@ export default function ClaimPage() {
       });
   
       const data = await response.json();
+      console.log("Claim API response:", data);
   
       if (!response.ok) {
         throw new Error(data.error || "Failed to process claim");
@@ -80,7 +85,6 @@ export default function ClaimPage() {
       console.error("Claim error:", error);
       setClaimStatus("error");
       setError(error.message || "Failed to process claim");
-      // Reset UI after error
       setTimeout(() => {
         setShowMagicUI(false);
         setClaimStatus("valid");
@@ -91,41 +95,37 @@ export default function ClaimPage() {
   const renderContent = () => {
     switch (claimStatus) {
       case "loading":
-        return <div>Validating your claim...</div>;
+        return <div className="status-message">Validating your claim...</div>;
       
       case "invalid":
-        return <div className="text-red-500">This claim link is invalid or has expired.</div>;
+        return <div className="status-message error-message">This claim link is invalid or has expired.</div>;
       
       case "claimed":
-        return <div>This NFT has already been claimed.</div>;
+        return <div className="status-message">This NFT has already been claimed.</div>;
       
       case "valid":
         return (
-          <div className="space-y-4">
-            <h2 className="text-xl font-bold mb-4">Your NFT is Ready!</h2>
+          <div className="claim-card">
+            <h2 className="claim-title">A gift from someone special</h2>
             
-            {/* NFT Display */}
             {purchaseData && purchaseData.nftData && (
-              <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
+              <div className="nft-display">
                 <img 
                   src={purchaseData.nftData.image} 
                   alt={purchaseData.nftData.title}
-                  className="w-full h-auto rounded-lg mb-4"
-                  onError={(e) => console.log("Image failed to load:", e)}
-                  onLoad={() => console.log("Image loaded successfully")}
+                  className="nft-image"
                 />
-                <h3 className="text-lg font-semibold">{purchaseData.nftData.title}</h3>
-                <p className="text-gray-600">{purchaseData.nftData.description}</p>
+                <div className="nft-content">
+                  <h3 className="nft-title">{purchaseData.nftData.title}</h3>
+                  <p className="nft-description">{purchaseData.nftData.description}</p>
+                </div>
               </div>
             )}
             
             {!showMagicUI ? (
               <button
-                onClick={() => {
-                  console.log("Claim button clicked");
-                  setShowMagicUI(true);
-                }}
-                className="w-full bg-blue-600 text-white py-3 px-6 rounded-lg hover:bg-blue-700 transition-colors"
+                onClick={() => setShowMagicUI(true)}
+                className="claim-button"
               >
                 Claim Your NFT
               </button>
@@ -144,17 +144,15 @@ export default function ClaimPage() {
         );
       
       case "processing":
-        return <div>Processing your claim...</div>;
+        return <div className="status-message">Processing your claim...</div>;
       
       case "success":
-        return (
-          <div className="text-green-500">
-            Congratulations! Your NFT has been claimed successfully.
-          </div>
-        );
+        return <div className="status-message success-message">
+          Congratulations! Your NFT has been claimed successfully.
+        </div>;
       
       case "error":
-        return <div className="text-red-500">Error: {error}</div>;
+        return <div className="status-message error-message">Error: {error}</div>;
       
       default:
         return null;
@@ -162,10 +160,8 @@ export default function ClaimPage() {
   };
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="max-w-md mx-auto bg-white p-6 rounded-lg shadow-lg">
-        {renderContent()}
-      </div>
+    <div className="claim-container">
+      {renderContent()}
     </div>
   );
 }

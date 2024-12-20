@@ -1,0 +1,91 @@
+/* src/app/claim/[token]/claim.css */
+
+.claim-container {
+    padding: 1.5rem;
+    max-width: 1200px;
+    margin: 0 auto;
+    text-align: center;
+}
+
+.claim-card {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    max-width: 350px;
+    margin: 0 auto;
+    padding: 1.5rem;
+}
+
+.claim-title {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #111827;
+    margin-bottom: 1.5rem;
+}
+
+.nft-display {
+    background: white;
+    border-radius: 12px;
+    overflow: hidden;
+    transition: transform 0.2s;
+    margin-bottom: 1.5rem;
+}
+
+.nft-image {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 1;
+    object-fit: contain;
+    background-color: #f8f9fa;
+    padding: 0.75rem;
+}
+
+.nft-content {
+    padding: 0.75rem;
+}
+
+.nft-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    color: #111827;
+}
+
+.nft-description {
+    color: #666;
+    margin-bottom: 1rem;
+    font-size: 0.9rem;
+    line-height: 1.4;
+}
+
+.claim-button {
+    width: 100%;
+    padding: 0.75rem;
+    background: #3b82f6;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.2s;
+    font-size: 1rem;
+}
+
+.claim-button:hover {
+    background: #2563eb;
+}
+
+.status-message {
+    text-align: center;
+    padding: 1rem;
+    font-size: 1.1rem;
+}
+
+.error-message {
+    color: #ef4444;
+}
+
+.success-message {
+    color: #10b981;
+}
