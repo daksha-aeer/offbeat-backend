@@ -5,6 +5,8 @@ import { useParams } from "next/navigation";
 import { useState, useEffect } from "react";
 import { useAccount } from "wagmi";
 import MagicWalletCreation from '@/components/MagicWalletCreation';
+import ProcessingStatus from './ProcessingStatus';
+
 import './claim.css';
 
 export default function ClaimPage() {
@@ -15,6 +17,8 @@ export default function ClaimPage() {
   const [purchaseData, setPurchaseData] = useState(null);
   const [showMagicUI, setShowMagicUI] = useState(false);
   const [error, setError] = useState("");
+  const [currentWalletAddress, setCurrentWalletAddress] = useState(null);
+
 
   useEffect(() => {
     validateToken();
@@ -45,17 +49,19 @@ export default function ClaimPage() {
     }
   };
 
+  
   const handleWalletCreated = async (walletAddress) => {
     if (!walletAddress) {
       setShowMagicUI(false);
-      setClaimStatus("valid");
+      setClaimStatus('valid');
       return;
     }
 
+    setCurrentWalletAddress(walletAddress);
+
     try {
-      setClaimStatus("processing");
-      console.log("Processing claim with wallet:", walletAddress);
-  
+      setClaimStatus('processing');
+      
       const response = await fetch("/api/process-claim", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -71,15 +77,11 @@ export default function ClaimPage() {
         throw new Error(data.error || "Failed to process claim");
       }
   
-      setClaimStatus("success");
+      setClaimStatus('success');
     } catch (error) {
       console.error("Claim error:", error);
-      setClaimStatus("error");
       setError(error.message || "Failed to process claim");
-      setTimeout(() => {
-        setShowMagicUI(false);
-        setClaimStatus("valid");
-      }, 3000);
+      setClaimStatus('error');
     }
   };
 
@@ -87,6 +89,10 @@ export default function ClaimPage() {
     console.log('Claim button clicked');
     setShowMagicUI(true);
   };
+
+
+
+
 
   
 
@@ -140,13 +146,19 @@ export default function ClaimPage() {
         );
       
       case "processing":
-        return <div className="status-message">Processing your claim...</div>;
+        return (
+          <ProcessingStatus 
+            address={currentWalletAddress}
+            status="Processing your NFT claim..."
+          />
+        );
       
       case "success":
         return (
-          <div className="status-message success-message">
-            Congratulations! Your NFT has been claimed successfully.
-          </div>
+          <ProcessingStatus 
+            address={currentWalletAddress}
+            status="🎉 Congratulations! Your NFT has been claimed successfully."
+          />
         );
       
       case "error":
