@@ -18,7 +18,7 @@ export default function NFTCard({ nft, onPurchaseClick }) {
           className="purchase-button"
           onClick={onPurchaseClick}
         >
-          Purchase NFT
+          Purchase Card
         </button>
       </div>
     </div>

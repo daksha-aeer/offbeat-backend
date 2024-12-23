@@ -157,7 +157,7 @@ export default function ClaimPage() {
         return (
           <ProcessingStatus 
             address={currentWalletAddress}
-            status="🎉 Congratulations! Your NFT has been claimed successfully."
+            status="Your card has been minted 🎉"
           />
         );
       
